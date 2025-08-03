@@ -1,0 +1,112 @@
+{
+  "name": "Retro-PEFT-Adapters Development",
+  "dockerFile": "Dockerfile",
+  "context": "..",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11",
+      "installTools": true,
+      "optimize": true
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "enableNonRootDocker": true
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.isort",
+        "ms-python.flake8",
+        "ms-python.mypy-type-checker",
+        "ms-toolsai.jupyter",
+        "charliermarsh.ruff",
+        "ms-vscode.makefile-tools",
+        "redhat.vscode-yaml",
+        "ms-vscode.vscode-json",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "eamodio.gitlens",
+        "ms-vscode.test-adapter-converter",
+        "hbenl.vscode-test-explorer"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.formatting.provider": "black",
+        "python.formatting.blackArgs": ["--line-length=100"],
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.linting.mypyEnabled": true,
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+        },
+        "files.exclude": {
+          "**/__pycache__": true,
+          "**/.pytest_cache": true,
+          "**/.mypy_cache": true,
+          "**/node_modules": true
+        }
+      }
+    }
+  },
+
+  "forwardPorts": [
+    8000,
+    6333,
+    8080,
+    6379,
+    9090
+  ],
+
+  "portsAttributes": {
+    "8000": {
+      "label": "Retro-PEFT API",
+      "onAutoForward": "notify"
+    },
+    "6333": {
+      "label": "Qdrant",
+      "onAutoForward": "silent"
+    },
+    "8080": {
+      "label": "Weaviate", 
+      "onAutoForward": "silent"
+    },
+    "6379": {
+      "label": "Redis",
+      "onAutoForward": "silent"
+    },
+    "9090": {
+      "label": "Metrics",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "postCreateCommand": "pip install -e '.[dev]' && pre-commit install",
+
+  "remoteEnv": {
+    "PYTHONPATH": "/workspaces/retro-peft-adapters/src",
+    "CUDA_VISIBLE_DEVICES": "0"
+  },
+
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+    "source=${localWorkspaceFolder}/.cache,target=/workspaces/retro-peft-adapters/.cache,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/models,target=/workspaces/retro-peft-adapters/models,type=bind,consistency=cached"
+  ],
+
+  "workspaceFolder": "/workspaces/retro-peft-adapters",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/retro-peft-adapters,type=bind,consistency=cached"
+}
