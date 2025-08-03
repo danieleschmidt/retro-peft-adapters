@@ -9,13 +9,29 @@ __version__ = "0.1.0"
 __author__ = "Daniel Schmidt"
 __email__ = "daniel@terragonlabs.com"
 
-# Core exports will be defined as implementation progresses
-# from .adapters import RetroLoRA, RetroAdaLoRA, RetroIA3
-# from .retrieval import VectorIndexBuilder, HybridRetriever
-# from .training import ContrastiveRetrievalTrainer
+from .adapters import RetroLoRA, RetroAdaLoRA, RetroIA3
+from .retrieval import VectorIndexBuilder, HybridRetriever, ContextualRetriever
+from .training import ContrastiveRetrievalTrainer, MultiTaskRetroTrainer
+from .fusion import CrossAttentionFusion, GatedFusion
+from .caching import FrozenKVCache, HierarchicalCache
+from .serving import RetroAdapterServer, AdapterRouter
 
 __all__ = [
     "__version__",
     "__author__",
     "__email__",
+    "RetroLoRA",
+    "RetroAdaLoRA", 
+    "RetroIA3",
+    "VectorIndexBuilder",
+    "HybridRetriever",
+    "ContextualRetriever",
+    "ContrastiveRetrievalTrainer",
+    "MultiTaskRetroTrainer",
+    "CrossAttentionFusion",
+    "GatedFusion",
+    "FrozenKVCache",
+    "HierarchicalCache",
+    "RetroAdapterServer",
+    "AdapterRouter",
 ]
