@@ -28,7 +28,7 @@ pip install retro-peft-adapters[all-backends]
 pip install retro-peft-adapters[faiss,qdrant,weaviate]
 
 # Development installation
-git clone https://github.com/yourusername/retro-peft-adapters
+git clone https://github.com/danieleschmidt/retro-peft-adapters
 cd retro-peft-adapters
 pip install -e ".[dev]"
 ```
@@ -516,9 +516,9 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 ```bibtex
 @software{retro_peft_adapters,
   title={Retro-PEFT-Adapters: Retrieval-Augmented Parameter-Efficient Fine-Tuning},
-  author={Your Name},
+  author={Daniel Schmidt},
   year={2025},
-  url={https://github.com/yourusername/retro-peft-adapters}
+  url={https://github.com/danieleschmidt/retro-peft-adapters}
 }
 
 @article{meta_peft_rag_2025,
