@@ -7,14 +7,22 @@ This module implements various adapter types enhanced with retrieval capabilitie
 - RetroIA3: Lightweight adapters with retrieval scaling
 """
 
-from .retro_lora import RetroLoRA
-from .retro_adalora import RetroAdaLoRA
-from .retro_ia3 import RetroIA3
 from .base_adapter import BaseRetroAdapter
+from .retro_lora import RetroLoRA
 
 __all__ = [
-    "RetroLoRA",
-    "RetroAdaLoRA", 
-    "RetroIA3",
     "BaseRetroAdapter",
+    "RetroLoRA",
 ]
+
+# Lazy imports for adapters that will be implemented
+def __getattr__(name):
+    """Lazy import for adapters that may not be implemented yet."""
+    if name == "RetroAdaLoRA":
+        from .retro_adalora import RetroAdaLoRA
+        return RetroAdaLoRA
+    elif name == "RetroIA3":
+        from .retro_ia3 import RetroIA3
+        return RetroIA3
+    else:
+        raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
