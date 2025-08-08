@@ -16,14 +16,17 @@ __all__ = [
     "MultiTaskRetroTrainer",
 ]
 
+
 # Lazy imports for optional trainers
 def __getattr__(name):
     """Lazy import for optional training components."""
     if name == "MetaLearningTrainer":
         from .meta_learning import MetaLearningTrainer
+
         return MetaLearningTrainer
     elif name == "CurriculumTrainer":
         from .curriculum import CurriculumTrainer
+
         return CurriculumTrainer
     else:
         raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

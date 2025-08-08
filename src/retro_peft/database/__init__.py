@@ -9,24 +9,19 @@ Provides data persistence for:
 """
 
 from .connection import DatabaseManager
-from .models import (
-    AdapterConfig,
-    TrainingRun, 
-    RetrievalIndex,
-    PerformanceMetrics
-)
+from .models import AdapterConfig, PerformanceMetrics, RetrievalIndex, TrainingRun
 from .repositories import (
     AdapterRepository,
-    TrainingRepository,
+    MetricsRepository,
     RetrievalRepository,
-    MetricsRepository
+    TrainingRepository,
 )
 
 __all__ = [
     "DatabaseManager",
     "AdapterConfig",
     "TrainingRun",
-    "RetrievalIndex", 
+    "RetrievalIndex",
     "PerformanceMetrics",
     "AdapterRepository",
     "TrainingRepository",

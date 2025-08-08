@@ -32,7 +32,7 @@ class TestPackageBasics:
     def test_package_all_exports(self):
         """Test that __all__ contains expected exports."""
         import retro_peft
-        expected_exports = ["__version__", "__author__", "__email__"]
+        expected_exports = ["__version__", "__author__", "__email__", "BaseRetroAdapter", "RetroLoRA"]
         assert retro_peft.__all__ == expected_exports
 
 
