@@ -124,6 +124,12 @@ minversion = "7.0"
 addopts = "-ra -q --strict-markers --strict-config"
 testpaths = ["tests"]
 pythonpath = ["src"]
+markers = [
+    "unit: marks tests as unit tests",
+    "integration: marks tests as integration tests",
+    "benchmark: marks tests as benchmark tests",
+    "slow: marks tests as slow-running"
+]
 
 [tool.coverage.run]
 branch = true

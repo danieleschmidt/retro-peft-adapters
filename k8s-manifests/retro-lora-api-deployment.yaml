@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: retro-lora-api
+  name: retro-lora-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: retro-lora-api
+  template:
+    metadata:
+      labels:
+        app: retro-lora-api
+    spec:
+      containers:
+      - image: retro-lora:latest
+        name: retro-lora-api
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi

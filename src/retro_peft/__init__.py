@@ -22,20 +22,25 @@ __all__ = [
     "RetroLoRA",
 ]
 
+
 # Lazy imports for optional components
 def __getattr__(name):
     """Lazy import for optional components that may not be available."""
     if name == "RetroAdaLoRA":
         from .adapters import RetroAdaLoRA
+
         return RetroAdaLoRA
     elif name == "RetroIA3":
         from .adapters import RetroIA3
+
         return RetroIA3
     elif name == "VectorIndexBuilder":
         from .retrieval import VectorIndexBuilder
+
         return VectorIndexBuilder
     elif name == "HybridRetriever":
         from .retrieval import HybridRetriever
+
         return HybridRetriever
     else:
         raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

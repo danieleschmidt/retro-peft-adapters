@@ -5,14 +5,14 @@ Provides RESTful and gRPC endpoints for inference services
 with authentication, rate limiting, and comprehensive monitoring.
 """
 
+from .auth import APIKeyAuthenticator, AuthenticationManager, JWTAuthenticator
+from .endpoints import HealthAPI, InferenceAPI, MetricsAPI
 from .gateway import APIGateway, GatewayConfig
-from .auth import AuthenticationManager, JWTAuthenticator, APIKeyAuthenticator
-from .rate_limiter import RateLimiter, RateLimitConfig
-from .endpoints import InferenceAPI, HealthAPI, MetricsAPI
+from .rate_limiter import RateLimitConfig, RateLimiter
 
 __all__ = [
     "APIGateway",
-    "GatewayConfig", 
+    "GatewayConfig",
     "AuthenticationManager",
     "JWTAuthenticator",
     "APIKeyAuthenticator",
