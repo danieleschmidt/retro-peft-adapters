@@ -1,27 +1,35 @@
 """
-Scaling and optimization components for retro-peft-adapters.
+Scaling and performance optimization components.
 
-Provides high-performance, production-ready scaling features including
-caching, async processing, load balancing, and distributed computing support.
+Provides async processing, high-performance caching, and distributed capabilities.
 """
 
-from .async_pipeline import AsyncBatchProcessor, AsyncRetrievalPipeline
-from .cache import MultiLevelCache, VectorCache, get_cache_manager
-from .load_balancer import LoadBalancer, RequestRouter
-from .metrics import PerformanceAnalyzer, ScalingMetrics
-from .resource_pool import ConnectionPool, ModelPool, get_resource_manager
+# Import only modules that work without heavy dependencies
+try:
+    from .high_performance_cache import (
+        MemoryCache, MultiLevelCache, EmbeddingCache, CacheManager
+    )
+    _CACHE_AVAILABLE = True
+except ImportError:
+    _CACHE_AVAILABLE = False
 
-__all__ = [
-    "MultiLevelCache",
-    "VectorCache",
-    "get_cache_manager",
-    "AsyncRetrievalPipeline",
-    "AsyncBatchProcessor",
-    "LoadBalancer",
-    "RequestRouter",
-    "ModelPool",
-    "ConnectionPool",
-    "get_resource_manager",
-    "ScalingMetrics",
-    "PerformanceAnalyzer",
-]
+try:
+    from .async_processing import (
+        AsyncBatchProcessor, AsyncRetriever, ConcurrentAdapterPool
+    )
+    _ASYNC_AVAILABLE = True
+except ImportError:
+    _ASYNC_AVAILABLE = False
+
+# Basic exports
+__all__ = []
+
+if _CACHE_AVAILABLE:
+    __all__.extend([
+        "MemoryCache", "MultiLevelCache", "EmbeddingCache", "CacheManager"
+    ])
+
+if _ASYNC_AVAILABLE:
+    __all__.extend([
+        "AsyncBatchProcessor", "AsyncRetriever", "ConcurrentAdapterPool"
+    ])

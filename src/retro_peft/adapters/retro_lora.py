@@ -4,10 +4,18 @@ RetroLoRA: LoRA adapter with retrieval augmentation.
 
 from typing import Any, Dict, List, Optional
 
-import torch
-import torch.nn as nn
-from peft import LoraConfig, get_peft_model
-from transformers import PreTrainedModel
+try:
+    import torch
+    import torch.nn as nn
+    from peft import LoraConfig, get_peft_model
+    from transformers import PreTrainedModel
+    _TORCH_AVAILABLE = True
+except ImportError:
+    _TORCH_AVAILABLE = False
+    # Mock classes for type checking
+    nn = object()
+    torch = object()
+    PreTrainedModel = object()
 
 from .base_adapter import BaseRetroAdapter
 
