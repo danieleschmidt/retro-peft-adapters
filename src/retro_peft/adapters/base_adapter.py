@@ -5,13 +5,47 @@ Base class for retrieval-augmented adapters.
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
 
-import torch
-import torch.nn as nn
-from peft import PeftConfig, PeftModel
-from transformers import PreTrainedModel
+try:
+    import torch
+    import torch.nn as nn
+    from peft import PeftConfig, PeftModel
+    from transformers import PreTrainedModel
+    _TORCH_AVAILABLE = True
+except ImportError:
+    _TORCH_AVAILABLE = False
+    # Mock classes for type checking
+    from typing import Any
+    
+    class MockTorch:
+        class Tensor:
+            pass
+        
+        @staticmethod
+        def tensor(*args, **kwargs):
+            return MockTorch.Tensor()
+    
+    class MockNN:
+        class Module:
+            def __init__(self):
+                pass
+    
+    torch = MockTorch()
+    nn = MockNN()
+    PreTrainedModel = object
 
 
-class BaseRetroAdapter(nn.Module, ABC):
+if _TORCH_AVAILABLE:
+    from torch import nn as torch_nn
+    class BaseRetroAdapter(torch_nn.Module, ABC):
+        pass
+else:
+    class BaseRetroAdapter(ABC):
+        pass
+
+# Continue with the actual implementation
+BaseRetroAdapter = type('BaseRetroAdapter', (nn.Module if _TORCH_AVAILABLE else object, ABC), {})
+
+class BaseRetroAdapter(nn.Module if _TORCH_AVAILABLE else object, ABC):
     """
     Base class for all retrieval-augmented adapters.
 
@@ -32,6 +66,11 @@ class BaseRetroAdapter(nn.Module, ABC):
         retrieval_weight: float = 0.3,
         **kwargs,
     ):
+        if not _TORCH_AVAILABLE:
+            raise ImportError(
+                "PyTorch and related dependencies are required to use adapters. "
+                "Install with: pip install torch transformers peft"
+            )
         super().__init__()
 
         self.base_model = base_model

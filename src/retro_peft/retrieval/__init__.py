@@ -8,10 +8,12 @@ This module provides:
 - Contextual and conversation-aware retrieval
 """
 
-from .index_builder import VectorIndexBuilder
+from .simple_index import VectorIndexBuilder
+from .mock_retriever import MockRetriever
 
 __all__ = [
     "VectorIndexBuilder",
+    "MockRetriever",
 ]
 
 
