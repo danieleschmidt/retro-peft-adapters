@@ -1,0 +1,112 @@
+{
+  "errors": {
+    "model_not_found": "モデルが見つかりません: {model_name}",
+    "invalid_input": "無効な入力: {details}",
+    "retrieval_failed": "検索操作が失敗しました: {reason}",
+    "adapter_initialization_failed": "アダプターの初期化に失敗しました: {error}",
+    "incompatible_dimensions": "互換性のないテンソル次元: 期待値 {expected}、実際の値 {actual}",
+    "training_error": "トレーニングエラーが発生しました: {details}",
+    "memory_exceeded": "メモリ制限を超過しました: {usage}MB > {limit}MB",
+    "network_timeout": "ネットワーク操作が{timeout}秒後にタイムアウトしました",
+    "file_not_found": "ファイルが見つかりません: {file_path}",
+    "permission_denied": "アクセスが拒否されました: {operation}",
+    "configuration_invalid": "無効な設定: {field} = {value}"
+  },
+  "warnings": {
+    "performance_degraded": "{reason}によりパフォーマンスが低下する可能性があります",
+    "deprecated_feature": "機能{feature}は非推奨でバージョン{version}で削除されます",
+    "high_memory_usage": "高いメモリ使用量が検出されました: {usage}MB",
+    "low_retrieval_quality": "検索品質スコアが低いです: {score:.3f}",
+    "adapter_convergence": "アダプターのトレーニングが収束していない可能性があります: 損失={loss:.4f}",
+    "experimental_feature": "実験的機能を使用中: {feature}",
+    "backup_recommended": "{operation}を実行する前にバックアップを推奨",
+    "resource_limits": "リソース制限に近づいています: {resource}が{percentage}%"
+  },
+  "info": {
+    "model_loaded": "モデルが正常に読み込まれました: {model_name}",
+    "training_started": "{num_samples}個のサンプルでトレーニングを開始しました",
+    "training_completed": "{duration:.2f}秒でトレーニング完了、最終損失: {loss:.4f}",
+    "retrieval_completed": "{time:.3f}秒で{num_docs}個の文書を検索しました",
+    "adapter_saved": "アダプターが保存されました: {path}",
+    "cache_hit": "クエリのキャッシュヒット: {query_hash}",
+    "performance_metrics": "パフォーマンス: {metric}={value:.4f}",
+    "initialization_complete": "システムの初期化が完了しました",
+    "checkpoint_created": "チェックポイントが作成されました: {checkpoint_id}",
+    "optimization_applied": "最適化が適用されました: {optimization}",
+    "validation_passed": "検証に合格しました: {test_name}"
+  },
+  "ui": {
+    "buttons": {
+      "start_training": "トレーニング開始",
+      "stop_training": "トレーニング停止",
+      "save_model": "モデル保存",
+      "load_model": "モデル読み込み",
+      "run_evaluation": "評価実行",
+      "export_results": "結果エクスポート",
+      "clear_cache": "キャッシュクリア",
+      "reset_settings": "設定リセット"
+    },
+    "labels": {
+      "model_name": "モデル名",
+      "learning_rate": "学習率",
+      "batch_size": "バッチサイズ",
+      "num_epochs": "エポック数",
+      "retrieval_k": "検索K値",
+      "adapter_rank": "アダプターランク",
+      "temperature": "温度パラメータ",
+      "dropout_rate": "ドロップアウト率"
+    },
+    "status": {
+      "idle": "待機中",
+      "training": "トレーニング中...",
+      "evaluating": "評価中...",
+      "saving": "保存中...",
+      "loading": "読み込み中...",
+      "processing": "処理中...",
+      "completed": "完了",
+      "failed": "失敗",
+      "cancelled": "キャンセル済み"
+    }
+  },
+  "metrics": {
+    "accuracy": "精度",
+    "loss": "損失",
+    "precision": "適合率",
+    "recall": "再現率",
+    "f1_score": "F1スコア",
+    "perplexity": "パープレキシティ",
+    "bleu_score": "BLEUスコア",
+    "rouge_score": "ROUGEスコア",
+    "retrieval_mrr": "平均逆順位",
+    "training_time": "トレーニング時間",
+    "inference_time": "推論時間",
+    "memory_usage": "メモリ使用量",
+    "parameter_count": "パラメータ数"
+  },
+  "research": {
+    "carn": {
+      "name": "クロスモーダル適応検索ネットワーク",
+      "description": "マルチモーダル配置と適応検索を組み合わせた新しいアーキテクチャ",
+      "components": {
+        "alignment": "マルチモーダル埋め込み配置",
+        "retrieval": "適応検索重み付け",
+        "distillation": "クロスドメイン知識蒸留",
+        "ranking": "強化学習ベースのアダプターランキング",
+        "fusion": "階層注意融合"
+      }
+    }
+  },
+  "deployment": {
+    "environments": {
+      "development": "開発",
+      "staging": "ステージング",
+      "production": "本番"
+    },
+    "status": {
+      "healthy": "正常",
+      "degraded": "性能劣化",
+      "unhealthy": "異常",
+      "maintenance": "メンテナンス中"
+    }
+  }
+}

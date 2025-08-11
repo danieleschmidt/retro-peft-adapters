@@ -1,0 +1,112 @@
+{
+  "errors": {
+    "model_not_found": "Modelo no encontrado: {model_name}",
+    "invalid_input": "Entrada inválida: {details}",
+    "retrieval_failed": "Operación de recuperación falló: {reason}",
+    "adapter_initialization_failed": "Error al inicializar adaptador: {error}",
+    "incompatible_dimensions": "Dimensiones de tensor incompatibles: esperado {expected}, obtenido {actual}",
+    "training_error": "Error de entrenamiento ocurrido: {details}",
+    "memory_exceeded": "Límite de memoria excedido: {usage}MB > {limit}MB",
+    "network_timeout": "Operación de red agotó tiempo después de {timeout}s",
+    "file_not_found": "Archivo no encontrado: {file_path}",
+    "permission_denied": "Permiso denegado: {operation}",
+    "configuration_invalid": "Configuración inválida: {field} = {value}"
+  },
+  "warnings": {
+    "performance_degraded": "Rendimiento puede estar degradado debido a {reason}",
+    "deprecated_feature": "Función {feature} está obsoleta y será eliminada en versión {version}",
+    "high_memory_usage": "Alto uso de memoria detectado: {usage}MB",
+    "low_retrieval_quality": "Puntuación de calidad de recuperación baja: {score:.3f}",
+    "adapter_convergence": "Entrenamiento del adaptador puede no haber convergido: pérdida={loss:.4f}",
+    "experimental_feature": "Usando función experimental: {feature}",
+    "backup_recommended": "Se recomienda respaldo antes de proceder con {operation}",
+    "resource_limits": "Acercándose a límites de recursos: {resource} al {percentage}%"
+  },
+  "info": {
+    "model_loaded": "Modelo cargado exitosamente: {model_name}",
+    "training_started": "Entrenamiento iniciado con {num_samples} muestras",
+    "training_completed": "Entrenamiento completado en {duration:.2f}s con pérdida final: {loss:.4f}",
+    "retrieval_completed": "Recuperados {num_docs} documentos en {time:.3f}s",
+    "adapter_saved": "Adaptador guardado en: {path}",
+    "cache_hit": "Acierto de caché para consulta: {query_hash}",
+    "performance_metrics": "Rendimiento: {metric}={value:.4f}",
+    "initialization_complete": "Inicialización del sistema completa",
+    "checkpoint_created": "Punto de control creado: {checkpoint_id}",
+    "optimization_applied": "Optimización aplicada: {optimization}",
+    "validation_passed": "Validación pasada: {test_name}"
+  },
+  "ui": {
+    "buttons": {
+      "start_training": "Iniciar Entrenamiento",
+      "stop_training": "Detener Entrenamiento",
+      "save_model": "Guardar Modelo",
+      "load_model": "Cargar Modelo",
+      "run_evaluation": "Ejecutar Evaluación",
+      "export_results": "Exportar Resultados",
+      "clear_cache": "Limpiar Caché",
+      "reset_settings": "Restablecer Configuración"
+    },
+    "labels": {
+      "model_name": "Nombre del Modelo",
+      "learning_rate": "Tasa de Aprendizaje",
+      "batch_size": "Tamaño de Lote",
+      "num_epochs": "Número de Épocas",
+      "retrieval_k": "K de Recuperación",
+      "adapter_rank": "Rango del Adaptador",
+      "temperature": "Temperatura",
+      "dropout_rate": "Tasa de Dropout"
+    },
+    "status": {
+      "idle": "Inactivo",
+      "training": "Entrenando...",
+      "evaluating": "Evaluando...",
+      "saving": "Guardando...",
+      "loading": "Cargando...",
+      "processing": "Procesando...",
+      "completed": "Completado",
+      "failed": "Falló",
+      "cancelled": "Cancelado"
+    }
+  },
+  "metrics": {
+    "accuracy": "Precisión",
+    "loss": "Pérdida",
+    "precision": "Precisión",
+    "recall": "Recuperación",
+    "f1_score": "Puntuación F1",
+    "perplexity": "Perplejidad",
+    "bleu_score": "Puntuación BLEU",
+    "rouge_score": "Puntuación ROUGE",
+    "retrieval_mrr": "Rango Recíproco Medio",
+    "training_time": "Tiempo de Entrenamiento",
+    "inference_time": "Tiempo de Inferencia",
+    "memory_usage": "Uso de Memoria",
+    "parameter_count": "Conteo de Parámetros"
+  },
+  "research": {
+    "carn": {
+      "name": "Redes de Recuperación Adaptiva Multi-Modal",
+      "description": "Arquitectura novedosa que combina alineación multi-modal con recuperación adaptiva",
+      "components": {
+        "alignment": "Alineación de Embeddings Multi-Modal",
+        "retrieval": "Ponderación de Recuperación Adaptiva",
+        "distillation": "Destilación de Conocimiento Inter-Dominio",
+        "ranking": "Clasificación de Adaptadores Basada en RL",
+        "fusion": "Fusión de Atención Jerárquica"
+      }
+    }
+  },
+  "deployment": {
+    "environments": {
+      "development": "Desarrollo",
+      "staging": "Preparación",
+      "production": "Producción"
+    },
+    "status": {
+      "healthy": "Saludable",
+      "degraded": "Degradado",
+      "unhealthy": "No Saludable",
+      "maintenance": "En Mantenimiento"
+    }
+  }
+}

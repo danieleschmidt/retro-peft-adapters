@@ -1,0 +1,133 @@
+{
+  "errors": {
+    "model_not_found": "Model not found: {model_name}",
+    "invalid_input": "Invalid input: {details}",
+    "retrieval_failed": "Retrieval operation failed: {reason}",
+    "adapter_initialization_failed": "Failed to initialize adapter: {error}",
+    "incompatible_dimensions": "Incompatible tensor dimensions: expected {expected}, got {actual}",
+    "training_error": "Training error occurred: {details}",
+    "memory_exceeded": "Memory limit exceeded: {usage}MB > {limit}MB",
+    "network_timeout": "Network operation timed out after {timeout}s",
+    "file_not_found": "File not found: {file_path}",
+    "permission_denied": "Permission denied: {operation}",
+    "configuration_invalid": "Invalid configuration: {field} = {value}"
+  },
+  "warnings": {
+    "performance_degraded": "Performance may be degraded due to {reason}",
+    "deprecated_feature": "Feature {feature} is deprecated and will be removed in version {version}",
+    "high_memory_usage": "High memory usage detected: {usage}MB",
+    "low_retrieval_quality": "Low retrieval quality score: {score:.3f}",
+    "adapter_convergence": "Adapter training may not have converged: loss={loss:.4f}",
+    "experimental_feature": "Using experimental feature: {feature}",
+    "backup_recommended": "Backup recommended before proceeding with {operation}",
+    "resource_limits": "Approaching resource limits: {resource} at {percentage}%"
+  },
+  "info": {
+    "model_loaded": "Model loaded successfully: {model_name}",
+    "training_started": "Training started with {num_samples} samples",
+    "training_completed": "Training completed in {duration:.2f}s with final loss: {loss:.4f}",
+    "retrieval_completed": "Retrieved {num_docs} documents in {time:.3f}s",
+    "adapter_saved": "Adapter saved to: {path}",
+    "cache_hit": "Cache hit for query: {query_hash}",
+    "performance_metrics": "Performance: {metric}={value:.4f}",
+    "initialization_complete": "System initialization complete",
+    "checkpoint_created": "Checkpoint created: {checkpoint_id}",
+    "optimization_applied": "Optimization applied: {optimization}",
+    "validation_passed": "Validation passed: {test_name}"
+  },
+  "ui": {
+    "buttons": {
+      "start_training": "Start Training",
+      "stop_training": "Stop Training",
+      "save_model": "Save Model",
+      "load_model": "Load Model",
+      "run_evaluation": "Run Evaluation",
+      "export_results": "Export Results",
+      "clear_cache": "Clear Cache",
+      "reset_settings": "Reset Settings"
+    },
+    "labels": {
+      "model_name": "Model Name",
+      "learning_rate": "Learning Rate", 
+      "batch_size": "Batch Size",
+      "num_epochs": "Number of Epochs",
+      "retrieval_k": "Retrieval K",
+      "adapter_rank": "Adapter Rank",
+      "temperature": "Temperature",
+      "dropout_rate": "Dropout Rate"
+    },
+    "status": {
+      "idle": "Idle",
+      "training": "Training...",
+      "evaluating": "Evaluating...",
+      "saving": "Saving...",
+      "loading": "Loading...",
+      "processing": "Processing...",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "tooltips": {
+      "learning_rate": "Controls how quickly the model adapts to new information",
+      "batch_size": "Number of samples processed simultaneously",
+      "retrieval_k": "Number of documents to retrieve for each query",
+      "adapter_rank": "Dimensionality of the adapter matrices (lower = more efficient)",
+      "temperature": "Controls randomness in generation (lower = more deterministic)"
+    }
+  },
+  "metrics": {
+    "accuracy": "Accuracy",
+    "loss": "Loss",
+    "precision": "Precision",
+    "recall": "Recall",
+    "f1_score": "F1 Score",
+    "perplexity": "Perplexity",
+    "bleu_score": "BLEU Score",
+    "rouge_score": "ROUGE Score",
+    "retrieval_mrr": "Mean Reciprocal Rank",
+    "training_time": "Training Time",
+    "inference_time": "Inference Time",
+    "memory_usage": "Memory Usage",
+    "parameter_count": "Parameter Count"
+  },
+  "research": {
+    "carn": {
+      "name": "Cross-Modal Adaptive Retrieval Networks",
+      "description": "Novel architecture combining multi-modal alignment with adaptive retrieval",
+      "components": {
+        "alignment": "Multi-Modal Embedding Alignment",
+        "retrieval": "Adaptive Retrieval Weighting", 
+        "distillation": "Cross-Domain Knowledge Distillation",
+        "ranking": "RL-Based Adapter Ranking",
+        "fusion": "Hierarchical Attention Fusion"
+      }
+    },
+    "validation": {
+      "statistical_significance": "Statistical Significance",
+      "effect_size": "Effect Size",
+      "confidence_interval": "Confidence Interval",
+      "p_value": "P-Value",
+      "sample_size": "Sample Size",
+      "reproducibility": "Reproducibility"
+    }
+  },
+  "deployment": {
+    "environments": {
+      "development": "Development",
+      "staging": "Staging", 
+      "production": "Production"
+    },
+    "status": {
+      "healthy": "Healthy",
+      "degraded": "Degraded",
+      "unhealthy": "Unhealthy",
+      "maintenance": "Under Maintenance"
+    },
+    "scaling": {
+      "scaling_up": "Scaling up to {replicas} replicas",
+      "scaling_down": "Scaling down to {replicas} replicas",
+      "auto_scaling_enabled": "Auto-scaling enabled",
+      "load_balancing": "Load balancing active"
+    }
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "errors": {
+    "model_not_found": "Modell nicht gefunden: {model_name}",
+    "invalid_input": "Ungültige Eingabe: {details}",
+    "retrieval_failed": "Abruf-Operation fehlgeschlagen: {reason}",
+    "adapter_initialization_failed": "Adapter-Initialisierung fehlgeschlagen: {error}",
+    "incompatible_dimensions": "Inkompatible Tensor-Dimensionen: erwartet {expected}, erhalten {actual}",
+    "training_error": "Trainings-Fehler aufgetreten: {details}",
+    "memory_exceeded": "Speicherlimit überschritten: {usage}MB > {limit}MB",
+    "network_timeout": "Netzwerk-Operation nach {timeout}s abgelaufen",
+    "file_not_found": "Datei nicht gefunden: {file_path}",
+    "permission_denied": "Berechtigung verweigert: {operation}",
+    "configuration_invalid": "Ungültige Konfiguration: {field} = {value}"
+  },
+  "warnings": {
+    "performance_degraded": "Leistung kann aufgrund von {reason} beeinträchtigt sein",
+    "deprecated_feature": "Funktion {feature} ist veraltet und wird in Version {version} entfernt",
+    "high_memory_usage": "Hohe Speichernutzung erkannt: {usage}MB",
+    "low_retrieval_quality": "Niedrige Abruf-Qualitätsbewertung: {score:.3f}",
+    "adapter_convergence": "Adapter-Training ist möglicherweise nicht konvergiert: Verlust={loss:.4f}",
+    "experimental_feature": "Verwende experimentelle Funktion: {feature}",
+    "backup_recommended": "Sicherung vor Fortfahren mit {operation} empfohlen",
+    "resource_limits": "Nähert sich Ressourcengrenzen: {resource} bei {percentage}%"
+  },
+  "info": {
+    "model_loaded": "Modell erfolgreich geladen: {model_name}",
+    "training_started": "Training begonnen mit {num_samples} Proben",
+    "training_completed": "Training abgeschlossen in {duration:.2f}s mit finalem Verlust: {loss:.4f}",
+    "retrieval_completed": "{num_docs} Dokumente in {time:.3f}s abgerufen",
+    "adapter_saved": "Adapter gespeichert in: {path}",
+    "cache_hit": "Cache-Treffer für Abfrage: {query_hash}",
+    "performance_metrics": "Leistung: {metric}={value:.4f}",
+    "initialization_complete": "System-Initialisierung abgeschlossen",
+    "checkpoint_created": "Checkpoint erstellt: {checkpoint_id}",
+    "optimization_applied": "Optimierung angewendet: {optimization}",
+    "validation_passed": "Validierung bestanden: {test_name}"
+  },
+  "ui": {
+    "buttons": {
+      "start_training": "Training Starten",
+      "stop_training": "Training Stoppen",
+      "save_model": "Modell Speichern",
+      "load_model": "Modell Laden",
+      "run_evaluation": "Bewertung Ausführen",
+      "export_results": "Ergebnisse Exportieren",
+      "clear_cache": "Cache Leeren",
+      "reset_settings": "Einstellungen Zurücksetzen"
+    },
+    "labels": {
+      "model_name": "Modellname",
+      "learning_rate": "Lernrate",
+      "batch_size": "Batch-Größe",
+      "num_epochs": "Anzahl Epochen",
+      "retrieval_k": "Abruf-K",
+      "adapter_rank": "Adapter-Rang",
+      "temperature": "Temperatur",
+      "dropout_rate": "Dropout-Rate"
+    },
+    "status": {
+      "idle": "Untätig",
+      "training": "Training...",
+      "evaluating": "Bewertung...",
+      "saving": "Speichern...",
+      "loading": "Laden...",
+      "processing": "Verarbeitung...",
+      "completed": "Abgeschlossen",
+      "failed": "Fehlgeschlagen",
+      "cancelled": "Abgebrochen"
+    }
+  },
+  "metrics": {
+    "accuracy": "Genauigkeit",
+    "loss": "Verlust",
+    "precision": "Präzision",
+    "recall": "Rückruf",
+    "f1_score": "F1-Score",
+    "perplexity": "Perplexität",
+    "bleu_score": "BLEU-Score",
+    "rouge_score": "ROUGE-Score",
+    "retrieval_mrr": "Mittlerer Reziproker Rang",
+    "training_time": "Trainingszeit",
+    "inference_time": "Inferenzzeit",
+    "memory_usage": "Speicherverbrauch",
+    "parameter_count": "Parameteranzahl"
+  },
+  "research": {
+    "carn": {
+      "name": "Kreuzmodale Adaptive Abruf-Netzwerke",
+      "description": "Neuartige Architektur, die multimodale Ausrichtung mit adaptivem Abruf kombiniert",
+      "components": {
+        "alignment": "Multimodale Embedding-Ausrichtung",
+        "retrieval": "Adaptive Abruf-Gewichtung",
+        "distillation": "Bereichsübergreifende Wissensdestillation",
+        "ranking": "RL-basierte Adapter-Rangierung",
+        "fusion": "Hierarchische Aufmerksamkeits-Fusion"
+      }
+    }
+  },
+  "deployment": {
+    "environments": {
+      "development": "Entwicklung",
+      "staging": "Staging",
+      "production": "Produktion"
+    },
+    "status": {
+      "healthy": "Gesund",
+      "degraded": "Beeinträchtigt",
+      "unhealthy": "Ungesund",
+      "maintenance": "Wartung"
+    }
+  }
+}
