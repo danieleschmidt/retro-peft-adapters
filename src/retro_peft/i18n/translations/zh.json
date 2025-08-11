@@ -1,0 +1,112 @@
+{
+  "errors": {
+    "model_not_found": "未找到模型: {model_name}",
+    "invalid_input": "无效输入: {details}",
+    "retrieval_failed": "检索操作失败: {reason}",
+    "adapter_initialization_failed": "适配器初始化失败: {error}",
+    "incompatible_dimensions": "张量维度不兼容: 期望 {expected}, 实际 {actual}",
+    "training_error": "训练错误: {details}",
+    "memory_exceeded": "内存限制超出: {usage}MB > {limit}MB",
+    "network_timeout": "网络操作在{timeout}秒后超时",
+    "file_not_found": "文件未找到: {file_path}",
+    "permission_denied": "权限被拒绝: {operation}",
+    "configuration_invalid": "无效配置: {field} = {value}"
+  },
+  "warnings": {
+    "performance_degraded": "由于{reason}，性能可能下降",
+    "deprecated_feature": "功能{feature}已弃用，将在版本{version}中删除",
+    "high_memory_usage": "检测到高内存使用: {usage}MB",
+    "low_retrieval_quality": "检索质量分数较低: {score:.3f}",
+    "adapter_convergence": "适配器训练可能未收敛: 损失={loss:.4f}",
+    "experimental_feature": "使用实验性功能: {feature}",
+    "backup_recommended": "建议在执行{operation}前备份",
+    "resource_limits": "接近资源限制: {resource}已达{percentage}%"
+  },
+  "info": {
+    "model_loaded": "模型加载成功: {model_name}",
+    "training_started": "开始训练，共{num_samples}个样本",
+    "training_completed": "训练完成，用时{duration:.2f}秒，最终损失: {loss:.4f}",
+    "retrieval_completed": "在{time:.3f}秒内检索到{num_docs}个文档",
+    "adapter_saved": "适配器已保存至: {path}",
+    "cache_hit": "查询缓存命中: {query_hash}",
+    "performance_metrics": "性能: {metric}={value:.4f}",
+    "initialization_complete": "系统初始化完成",
+    "checkpoint_created": "检查点已创建: {checkpoint_id}",
+    "optimization_applied": "已应用优化: {optimization}",
+    "validation_passed": "验证通过: {test_name}"
+  },
+  "ui": {
+    "buttons": {
+      "start_training": "开始训练",
+      "stop_training": "停止训练",
+      "save_model": "保存模型",
+      "load_model": "加载模型",
+      "run_evaluation": "运行评估",
+      "export_results": "导出结果",
+      "clear_cache": "清除缓存",
+      "reset_settings": "重置设置"
+    },
+    "labels": {
+      "model_name": "模型名称",
+      "learning_rate": "学习率",
+      "batch_size": "批次大小",
+      "num_epochs": "训练轮数",
+      "retrieval_k": "检索K值",
+      "adapter_rank": "适配器秩",
+      "temperature": "温度参数",
+      "dropout_rate": "丢弃率"
+    },
+    "status": {
+      "idle": "空闲",
+      "training": "训练中...",
+      "evaluating": "评估中...",
+      "saving": "保存中...",
+      "loading": "加载中...",
+      "processing": "处理中...",
+      "completed": "完成",
+      "failed": "失败",
+      "cancelled": "已取消"
+    }
+  },
+  "metrics": {
+    "accuracy": "准确率",
+    "loss": "损失",
+    "precision": "精确率",
+    "recall": "召回率",
+    "f1_score": "F1分数",
+    "perplexity": "困惑度",
+    "bleu_score": "BLEU分数",
+    "rouge_score": "ROUGE分数",
+    "retrieval_mrr": "平均倒数排名",
+    "training_time": "训练时间",
+    "inference_time": "推理时间",
+    "memory_usage": "内存使用",
+    "parameter_count": "参数数量"
+  },
+  "research": {
+    "carn": {
+      "name": "跨模态自适应检索网络",
+      "description": "结合多模态对齐与自适应检索的新颖架构",
+      "components": {
+        "alignment": "多模态嵌入对齐",
+        "retrieval": "自适应检索加权",
+        "distillation": "跨域知识蒸馏",
+        "ranking": "基于强化学习的适配器排序",
+        "fusion": "层次化注意力融合"
+      }
+    }
+  },
+  "deployment": {
+    "environments": {
+      "development": "开发",
+      "staging": "预发布",
+      "production": "生产"
+    },
+    "status": {
+      "healthy": "健康",
+      "degraded": "降级",
+      "unhealthy": "不健康",
+      "maintenance": "维护中"
+    }
+  }
+}
