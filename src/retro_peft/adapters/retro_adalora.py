@@ -5,17 +5,34 @@ RetroAdaLoRA: Adaptive LoRA with retrieval-guided rank allocation.
 import math
 from typing import Any, Dict, List, Optional
 
-import torch
-import torch.nn as nn
-from transformers import PreTrainedModel
+try:
+    import torch
+    import torch.nn as nn
+    from transformers import PreTrainedModel
+    _TORCH_AVAILABLE = True
+except ImportError:
+    _TORCH_AVAILABLE = False
+    # Mock classes for type checking
+    nn = object()
+    torch = object()
+    PreTrainedModel = object()
+    
+    class RetroAdaLoRA:
+        def __init__(self, *args, **kwargs):
+            raise ImportError(
+                "RetroAdaLoRA requires additional dependencies: "
+                "pip install torch transformers peft"
+            )
 
-from .base_adapter import BaseRetroAdapter
+if _TORCH_AVAILABLE:
+    from .base_adapter import BaseRetroAdapter
 
-
-class AdaptiveRetroLoRALayer(nn.Module):
-    """
-    Adaptive LoRA layer with retrieval-guided rank pruning.
-    """
+# Only define classes if torch is available
+if _TORCH_AVAILABLE:
+    class AdaptiveRetroLoRALayer(nn.Module):
+        """
+        Adaptive LoRA layer with retrieval-guided rank pruning.
+        """
 
     def __init__(
         self,
@@ -220,11 +237,12 @@ class AdaptiveRetroLoRALayer(nn.Module):
         }
 
 
-class RetroAdaLoRA(BaseRetroAdapter):
-    """
-    Adaptive LoRA with retrieval-guided rank allocation.
+if _TORCH_AVAILABLE:
+    class RetroAdaLoRA(BaseRetroAdapter):
+        """
+        Adaptive LoRA with retrieval-guided rank allocation.
 
-    Dynamically adjusts rank allocation based on:
+        Dynamically adjusts rank allocation based on:
     1. Activation magnitude importance
     2. Retrieval context relevance
     3. Task-specific adaptation needs

@@ -1,0 +1,59 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Retro-PEFT API metrics
+  - job_name: 'retro-peft-api'
+    scrape_interval: 10s
+    metrics_path: /metrics/prometheus
+    static_configs:
+      - targets: ['retro-peft-api:8000']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'retro-peft-api'
+
+  # System metrics (if node_exporter is available)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  # Nginx metrics (if nginx-prometheus-exporter is available)
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+    scrape_interval: 15s
+
+  # Redis metrics (if redis_exporter is available)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 15s
+
+  # Custom health check endpoint
+  - job_name: 'retro-peft-health'
+    scrape_interval: 30s
+    metrics_path: /health
+    static_configs:
+      - targets: ['retro-peft-api:8000']
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'retro_peft_health_.*'
+        target_label: __name__
+        replacement: '${1}'
