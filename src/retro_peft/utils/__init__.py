@@ -23,8 +23,28 @@ try:
 except ImportError:
     _HEALTH_MONITORING_AVAILABLE = False
 
+# Import simple config as fallback
+try:
+    from . import simple_config as config
+    _CONFIG_AVAILABLE = True
+except ImportError:
+    _CONFIG_AVAILABLE = False
+
+# Import simple logging as fallback
+try:
+    from . import simple_logging as logging
+    _LOGGING_AVAILABLE = True
+except ImportError:
+    _LOGGING_AVAILABLE = False
+
 # Basic exports
 __all__ = []
+
+if _CONFIG_AVAILABLE:
+    __all__.extend(["config"])
+
+if _LOGGING_AVAILABLE:
+    __all__.extend(["logging"])
 
 if _VALIDATION_AVAILABLE:
     __all__.extend(["InputValidator", "ValidationError"])

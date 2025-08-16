@@ -33,8 +33,12 @@ def __getattr__(name):
         try:
             from .retro_ia3 import RetroIA3
             return RetroIA3  
-        except ImportError as e:
-            raise ImportError(f"RetroIA3 requires additional dependencies: {e}")
+        except ImportError:
+            try:
+                from .simple_ia3 import RetroIA3
+                return RetroIA3
+            except ImportError as e:
+                raise ImportError(f"RetroIA3 requires additional dependencies: {e}")
     else:
         raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
