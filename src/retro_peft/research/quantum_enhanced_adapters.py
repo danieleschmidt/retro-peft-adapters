@@ -64,7 +64,9 @@ class QuantumConfig:
     quantum_teleportation: bool = True
     quantum_cryptography: bool = False
     adiabatic_evolution: bool = True
-    topological_protection: bool = False
+    topological_protection: bool = True
+    quantum_fourier_transform: bool = True
+    quantum_walk: bool = True
     
     # Research parameters
     enable_quantum_supremacy_test: bool = True
