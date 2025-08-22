@@ -1,11 +1,26 @@
 """
-Comprehensive error handling and recovery utilities.
+Generation 2: Production-Grade Error Handling and Recovery Utilities.
+
+Provides comprehensive error handling, circuit breakers, retry mechanisms,
+and error recovery strategies for maximum reliability and resilience.
 """
 
+import asyncio
 import logging
+import threading
+import time
 import traceback
+from contextlib import contextmanager
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Set, Type, Union
+
+try:
+    import psutil
+except ImportError:
+    psutil = None
 
 
 class RetroAdapterError(Exception):
@@ -322,3 +337,64 @@ class CircuitBreaker:
 class CircuitBreakerError(Exception):
     """Raised when circuit breaker is open"""
     pass
+
+
+class TimeoutError(RetroAdapterError):
+    """Raised when operations timeout"""
+    pass
+
+
+class ResourceExhaustionError(RetroAdapterError):
+    """Raised when system resources are exhausted"""
+    pass
+
+
+class NetworkError(RetroAdapterError):
+    """Raised when network operations fail"""
+    pass
+
+
+class CompatibilityError(RetroAdapterError):
+    """Raised when compatibility issues are detected"""
+    pass
+
+
+class DataIntegrityError(RetroAdapterError):
+    """Raised when data integrity checks fail"""
+    pass
+
+
+@dataclass
+class ErrorContext:
+    """Context information for error handling"""
+    operation: str
+    component: str
+    timestamp: datetime = field(default_factory=datetime.now)
+    request_id: Optional[str] = None
+    user_id: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    error_id: str = field(default_factory=lambda: f"err_{int(time.time()*1000)}")
+    
+
+class ErrorSeverity(Enum):
+    """Error severity levels"""
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+@dataclass
+class ErrorRecord:
+    """Detailed error record for tracking and analysis"""
+    error: Exception
+    context: ErrorContext
+    severity: ErrorSeverity
+    recovery_attempted: bool = False
+    recovery_successful: bool = False
+    recovery_strategy: Optional[str] = None
+    retry_count: int = 0
+    first_occurrence: datetime = field(default_factory=datetime.now)
+    last_occurrence: datetime = field(default_factory=datetime.now)
+    occurrence_count: int = 1
+    resolution_notes: Optional[str] = None
