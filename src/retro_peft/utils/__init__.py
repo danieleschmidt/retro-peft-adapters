@@ -4,53 +4,54 @@ Utility modules for retro-peft-adapters.
 Provides validation, error handling, monitoring, and other utility functions.
 """
 
-# Import only modules that exist and work without heavy dependencies
+# Provide fallback implementations first
+class FallbackInputValidator:
+    @staticmethod
+    def validate_model_name(name):
+        return str(name) if name else "default"
+    
+    @staticmethod
+    def validate_adapter_config(config):
+        return config if isinstance(config, dict) else {}
+    
+    @staticmethod
+    def validate_text_content(text, max_length=100000):
+        return str(text)[:max_length]
+
+class FallbackValidationError(Exception):
+    pass
+
+class FallbackErrorHandler:
+    def __init__(self, logger=None):
+        self.logger = logger
+
+class FallbackAdapterError(Exception):
+    pass
+
+def fallback_resilient_operation(**kwargs):
+    def decorator(func):
+        return func
+    return decorator
+
+# Try to import real implementations, use fallbacks if failed
 try:
     from .validation import InputValidator, ValidationError
-    _VALIDATION_AVAILABLE = True
 except ImportError:
-    _VALIDATION_AVAILABLE = False
+    InputValidator = FallbackInputValidator
+    ValidationError = FallbackValidationError
 
 try:
     from .error_handling import ErrorHandler, AdapterError, resilient_operation
-    _ERROR_HANDLING_AVAILABLE = True
 except ImportError:
-    _ERROR_HANDLING_AVAILABLE = False
+    ErrorHandler = FallbackErrorHandler
+    AdapterError = FallbackAdapterError
+    resilient_operation = fallback_resilient_operation
 
-try:
-    from .health_monitoring import HealthMonitor, MetricsCollector, get_health_monitor
-    _HEALTH_MONITORING_AVAILABLE = True
-except ImportError:
-    _HEALTH_MONITORING_AVAILABLE = False
-
-# Import simple config as fallback
-try:
-    from . import simple_config as config
-    _CONFIG_AVAILABLE = True
-except ImportError:
-    _CONFIG_AVAILABLE = False
-
-# Import simple logging as fallback
-try:
-    from . import simple_logging as logging
-    _LOGGING_AVAILABLE = True
-except ImportError:
-    _LOGGING_AVAILABLE = False
-
-# Basic exports
-__all__ = []
-
-if _CONFIG_AVAILABLE:
-    __all__.extend(["config"])
-
-if _LOGGING_AVAILABLE:
-    __all__.extend(["logging"])
-
-if _VALIDATION_AVAILABLE:
-    __all__.extend(["InputValidator", "ValidationError"])
-
-if _ERROR_HANDLING_AVAILABLE:
-    __all__.extend(["ErrorHandler", "AdapterError", "resilient_operation"])
-
-if _HEALTH_MONITORING_AVAILABLE:
-    __all__.extend(["HealthMonitor", "MetricsCollector", "get_health_monitor"])
+# Always export the main classes (real or fallback)
+__all__ = [
+    "InputValidator", 
+    "ValidationError",
+    "ErrorHandler", 
+    "AdapterError", 
+    "resilient_operation"
+]
