@@ -20,6 +20,11 @@ except ImportError:
     _THREADING_AVAILABLE = False
 
 
+class RetrievalError(Exception):
+    """Custom exception for retrieval-related errors"""
+    pass
+
+
 @dataclass
 class RetrievalResult:
     """Structured retrieval result with metadata"""
@@ -318,6 +323,23 @@ class RobustMockRetriever(MockRetriever):
                 "misses": self.cache_misses
             }
         }
+    
+    def get_health_metrics(self) -> Dict[str, Any]:
+        """Get health metrics for performance monitoring"""
+        health_status = self.get_health_status()
+        
+        return {
+            "health_status": health_status["status"],
+            "success_rate": health_status["success_rate"],
+            "cache_hit_rate": health_status["cache_hit_rate"],
+            "total_operations": health_status["metrics"]["total_requests"],
+            "successful_operations": health_status["metrics"]["successful_requests"],
+            "failed_operations": health_status["metrics"]["failed_requests"],
+            "average_response_time_ms": health_status["metrics"]["average_response_time_ms"],
+            "cache_utilization": len(self.cache) / max(self.cache_size, 1),
+            "document_count": self.get_document_count(),
+            "cache_size": len(self.cache)
+        }
 
 
 class RobustVectorIndexBuilder:
@@ -375,6 +397,16 @@ class RobustVectorIndexBuilder:
                 break
         
         return chunks
+    
+    def create_sample_documents(self) -> List[str]:
+        """Create sample documents for testing"""
+        return [
+            "Machine learning is a subset of artificial intelligence that focuses on algorithms.",
+            "Neural networks are inspired by biological neural networks in the human brain.",
+            "Deep learning uses multiple layers to learn representations of data.",
+            "Natural language processing enables computers to understand human language.",
+            "Computer vision allows machines to interpret and analyze visual information.",
+        ]
     
     @resilient_operation(
         context="build_index",

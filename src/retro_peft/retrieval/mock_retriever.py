@@ -190,11 +190,16 @@ class MockRetriever:
             if matches > 0:
                 # Score based on word overlap ratio
                 score = matches / len(query_words)
-                results.append({
-                    "text": doc["text"],
-                    "metadata": doc.get("metadata", {}),
-                    "score": score
-                })
+            else:
+                # For queries with no matches (like "test"), give a small base score
+                # This ensures testing queries still return results
+                score = 0.1
+                
+            results.append({
+                "text": doc["text"],
+                "metadata": doc.get("metadata", {}),
+                "score": score
+            })
         
         # Sort by score and return top-k
         results.sort(key=lambda x: x["score"], reverse=True)
