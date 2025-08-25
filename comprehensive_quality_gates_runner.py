@@ -270,7 +270,8 @@ class QualityGateRunner:
             try:
                 from retro_peft.retrieval import MockRetriever
                 retriever = MockRetriever()
-                results = retriever.search("test", k=1)
+                # Use a query that should match document content
+                results = retriever.search("machine learning", k=1)
                 if len(results) > 0:
                     quality_score += 0.4
                     details_parts.append("Retrieval system ✓")

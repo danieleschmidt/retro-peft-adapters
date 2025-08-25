@@ -13,7 +13,12 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, Union
 
-import yaml
+try:
+    import yaml
+    _YAML_AVAILABLE = True
+except ImportError:
+    _YAML_AVAILABLE = False
+    yaml = None
 
 from .logging import get_global_logger
 from .security import get_security_manager
@@ -271,15 +276,23 @@ class ConfigManager:
         self.logger = get_global_logger()
         self.security_manager = get_security_manager()
 
-        # Default config search paths
-        self.search_paths = [
-            Path.cwd() / "retro_peft_config.yaml",
-            Path.cwd() / "retro_peft_config.json",
-            Path.cwd() / "config.yaml",
-            Path.cwd() / "config.json",
-            Path.home() / ".retro_peft" / "config.yaml",
-            Path.home() / ".config" / "retro_peft" / "config.yaml",
-        ]
+        # Default config search paths (prefer JSON when YAML not available)
+        if _YAML_AVAILABLE:
+            self.search_paths = [
+                Path.cwd() / "retro_peft_config.yaml",
+                Path.cwd() / "retro_peft_config.json",
+                Path.cwd() / "config.yaml",
+                Path.cwd() / "config.json",
+                Path.home() / ".retro_peft" / "config.yaml",
+                Path.home() / ".config" / "retro_peft" / "config.yaml",
+            ]
+        else:
+            self.search_paths = [
+                Path.cwd() / "retro_peft_config.json",
+                Path.cwd() / "config.json",
+                Path.home() / ".retro_peft" / "config.json",
+                Path.home() / ".config" / "retro_peft" / "config.json",
+            ]
 
         # Environment variable prefix
         self.env_prefix = "RETRO_PEFT_"
@@ -352,6 +365,8 @@ class ConfigManager:
         try:
             with open(file_path, "r") as f:
                 if file_path.suffix.lower() in [".yaml", ".yml"]:
+                    if not _YAML_AVAILABLE:
+                        raise ValueError("YAML support not available. Install PyYAML or use JSON config files.")
                     config_data = yaml.safe_load(f)
                 elif file_path.suffix.lower() == ".json":
                     config_data = json.load(f)
@@ -534,6 +549,8 @@ class ConfigManager:
         try:
             with open(file_path, "w") as f:
                 if format.lower() == "yaml":
+                    if not _YAML_AVAILABLE:
+                        raise ValueError("YAML support not available. Install PyYAML or use JSON format.")
                     yaml.dump(config_dict, f, default_flow_style=False, indent=2)
                 elif format.lower() == "json":
                     json.dump(config_dict, f, indent=2)
@@ -651,3 +668,38 @@ def save_config(file_path: Union[str, Path], format: str = "yaml"):
     config = get_config()
     config_manager = get_config_manager()
     config_manager.save_config(config, file_path, format)
+
+
+def get_default_config() -> Dict[str, Any]:
+    """
+    Get default configuration as dictionary.
+    
+    Returns:
+        Default configuration dictionary
+    """
+    default_config = Config()
+    return default_config.to_dict()
+
+
+def validate_config(config_dict: Dict[str, Any]) -> bool:
+    """
+    Validate configuration dictionary.
+    
+    Args:
+        config_dict: Configuration dictionary to validate
+        
+    Returns:
+        True if configuration is valid, False otherwise
+    """
+    try:
+        # Create config from dictionary
+        config = Config()
+        config.update(config_dict)
+        
+        # Use config manager to validate
+        config_manager = get_config_manager()
+        config_manager._validate_config(config)
+        
+        return True
+    except Exception:
+        return False

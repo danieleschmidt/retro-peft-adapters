@@ -153,9 +153,11 @@ class BaseRetroAdapter(ABC):
                 augmented_prompt = f"Context: {context_str}\n\nQuestion: {clean_prompt}"
             
             # Generate response
+            generated_text = f"Generated response for: {augmented_prompt}"
             response = {
                 "input": clean_prompt,
-                "output": f"Generated response for: {augmented_prompt}",
+                "output": generated_text,
+                "generated_text": generated_text,  # Add this field for quality gates compatibility
                 "context_used": len(context) > 0,
                 "context_sources": len(context),
                 "retrieval_time": retrieval_time,

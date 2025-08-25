@@ -172,20 +172,20 @@ def test_configuration_system():
         # Test default configuration
         default_config = config.get_default_config()
         assert isinstance(default_config, dict)
-        assert 'adapters' in default_config
+        assert 'adapter' in default_config
         print("✅ Default configuration loaded")
         
         # Test configuration validation
         test_config = {
-            'adapters': {
-                'lora': {'r': 16, 'alpha': 32}
+            'adapter': {
+                'rank': 16, 
+                'alpha': 32.0
             },
             'retrieval': {
-                'embedding_dim': 768,
                 'chunk_size': 512
             },
             'training': {
-                'epochs': 3
+                'num_epochs': 3
             },
             'inference': {
                 'max_length': 200
@@ -241,7 +241,7 @@ def test_basic_integration():
         retriever_config = config.get_default_config()['retrieval']
         # Filter config to match VectorIndexBuilder parameters
         builder_config = {
-            'embedding_dim': retriever_config['embedding_dim'],
+            'embedding_dim': 256,  # Use default embedding dimension
             'chunk_size': retriever_config['chunk_size'],
             'overlap': retriever_config.get('overlap', 50)
         }

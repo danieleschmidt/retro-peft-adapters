@@ -109,7 +109,8 @@ class RetroPEFTLogger:
 
     def _log_with_context(self, level: int, message: str, **kwargs):
         """Log message with context and extra fields"""
-        extra_fields = {**self._context, **kwargs}
+        # Remove 'level' from kwargs if present to avoid conflicts
+        extra_fields = {k: v for k, v in {**self._context, **kwargs}.items() if k != 'level'}
 
         # Create log record with extra fields
         record = self.logger.makeRecord(self.name, level, "", 0, message, (), None)
@@ -226,7 +227,7 @@ def setup_logger(
     # Log initial setup message
     retro_logger.info(
         "Logger initialized",
-        level=level,
+        config_level=level,
         log_file=log_file,
         log_format=log_format,
         enable_console=enable_console,
@@ -296,6 +297,40 @@ def log_error(message: str, **kwargs):
 def log_debug(message: str, **kwargs):
     """Quick debug logging"""
     get_global_logger().debug(message, **kwargs)
+
+
+# Performance measurement utilities
+import time
+from contextlib import contextmanager
+
+
+@contextmanager
+def performance_timer(operation_name: str):
+    """
+    Context manager for measuring operation performance.
+    
+    Args:
+        operation_name: Name of the operation being measured
+    """
+    start_time = time.time()
+    try:
+        yield
+    finally:
+        duration = (time.time() - start_time) * 1000  # Convert to milliseconds
+        get_global_logger().log_performance(f"Operation '{operation_name}' completed", duration)
+
+
+def get_logger(name: str) -> RetroPEFTLogger:
+    """
+    Get logger instance for specified name.
+    
+    Args:
+        name: Logger name
+        
+    Returns:
+        Logger instance
+    """
+    return setup_logger(name=name)
 
 
 def log_performance(operation: str, duration_ms: float, **kwargs):
