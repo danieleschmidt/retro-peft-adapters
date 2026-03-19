@@ -1,540 +1,144 @@
-# Retro-PEFT-Adapters
+# retro-peft-adapters
 
-Library of retrieval-augmented parameter-efficient adapters that combine frozen key/value caching with local vector databases for instant domain adaptation. Based on Meta's July 2025 PEFT+RAG technique, this framework enables efficient fine-tuning with retrieval-enhanced context.
+Retrieval-Augmented Parameter-Efficient Fine-Tuning (PEFT).
 
-## Overview
+Combines LoRA-style low-rank adaptation with a frozen key/value retrieval cache. The adapter output is a learned blend of:
+1. **LoRA output** — parametric adaptation via trainable low-rank matrices
+2. **Retrieved value vectors** — non-parametric domain knowledge from a frozen cache
 
-Retro-PEFT-Adapters revolutionizes domain adaptation by combining parameter-efficient fine-tuning methods (LoRA, AdaLoRA, IA³) with retrieval-augmented generation. Instead of updating all model parameters, we cache domain-specific knowledge in vector databases and use lightweight adapters to integrate retrieved context.
+Swapping the cache at inference time adapts the model to a new domain without any retraining.
 
-## Key Features
+## Concepts
 
-- **Retrieval-Augmented Adapters**: Seamless integration of vector databases with PEFT
-- **Frozen K/V Caching**: Reuse computed attention states across domains
-- **Multi-Adapter Fusion**: Combine multiple domain adapters dynamically
-- **Instant Domain Switching**: Zero-shot adaptation via retrieval
-- **Memory Efficient**: <1% additional parameters per domain
-- **Production Ready**: Optimized for serving at scale
+```
+Input x
+  │
+  ├──► base(x)            ← frozen pre-trained linear
+  │
+  ├──► lora_B(lora_A(x)) ← trainable LoRA, scale = α/r
+  │
+  └──► gate · Σ wᵢ vᵢ    ← retrieval: top-k values from cache,
+                              weighted by cosine similarity,
+                              gated by a learned scalar
+```
 
-## Installation
+The retrieval cache is built once from a corpus and frozen. Only the LoRA matrices and the retrieval gate are trained.
+
+## Components
+
+| Class | Description |
+|---|---|
+| `KeyValueCache` | Frozen store of (key_embedding, value) pairs. Retrieves top-k by cosine similarity. |
+| `CacheBuilder` | Builds a `KeyValueCache` from raw (input, output) corpus pairs with optional encoder and pooling. |
+| `RetroAdapter` | Drop-in replacement for `nn.Linear`. LoRA + retrieval, with a learned gate. |
+| `AdapterBank` | Manages multiple `RetroAdapter`s for different domains. Hot-swap caches at inference time. |
+| `RetroPEFT` | Wraps any `nn.Module`, injects `RetroAdapter`s at target layers by name. |
+
+## Install
 
 ```bash
-# Basic installation
-pip install retro-peft-adapters
-
-# With all vector database backends
-pip install retro-peft-adapters[all-backends]
-
-# With specific backends
-pip install retro-peft-adapters[faiss,qdrant,weaviate]
-
-# Development installation
-git clone https://github.com/danieleschmidt/retro-peft-adapters
-cd retro-peft-adapters
-pip install -e ".[dev]"
+pip install -e .
 ```
+
+Requires Python ≥ 3.8 and PyTorch ≥ 1.12.
 
 ## Quick Start
 
-### Basic Retrieval-Augmented Adapter
+```python
+import torch
+import torch.nn as nn
+from retro_peft import KeyValueCache, CacheBuilder, RetroAdapter, RetroPEFT
+
+# 1. Build a cache from domain-specific key/value pairs
+keys   = torch.randn(100, 64)   # 100 prototype embeddings
+values = torch.randn(100, 128)  # associated value vectors
+cache  = CacheBuilder.from_tensors(keys, values)
+
+# 2. Wrap a model — injects RetroAdapters at layers matching "fc" or "proj"
+base_model = nn.Sequential(
+    nn.Linear(64, 128), nn.ReLU(), nn.Linear(128, 10)
+)
+peft = RetroPEFT(base_model, target_modules=["0", "2"], rank=8, k=4)
+
+# 3. Attach cache to the first layer (key_dim=64, value_dim=128)
+peft.set_cache({"0": cache})
+
+# 4. Only LoRA + gate params are trainable
+print(f"Trainable: {peft.trainable_param_count():,} / {peft.total_param_count():,}")
+
+# 5. Forward pass
+x = torch.randn(32, 64)
+out = peft(x)  # shape: (32, 10)
+```
+
+## Domain Hot-Swapping with AdapterBank
 
 ```python
-from retro_peft import RetroLoRA
-from transformers import AutoModelForCausalLM
+from retro_peft import AdapterBank, CacheBuilder
 
-# Load base model
-base_model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf")
+bank = AdapterBank(in_features=64, out_features=128, rank=8, k=4)
 
-# Create retrieval-augmented LoRA
-retro_lora = RetroLoRA(
-    base_model=base_model,
-    r=16,  # LoRA rank
-    alpha=32,
-    target_modules=["q_proj", "v_proj"],
-    retrieval_dim=768,
-    index_path="domain_knowledge.faiss"
-)
+# Register domains with their caches
+for domain, (keys, values) in domain_data.items():
+    cache = CacheBuilder.from_tensors(keys, values)
+    bank.register_domain(domain, cache)
 
-# Fine-tune with retrieval
-retro_lora.train(
-    train_dataset=domain_data,
-    num_epochs=3,
-    retrieval_k=5,
-    retrieval_weight=0.3
-)
+# Activate a domain — no retraining needed
+bank.activate("medical")
+out = bank(x)
 
-# Inference with automatic retrieval
-output = retro_lora.generate(
-    "Explain quantum computing applications in drug discovery",
-    max_length=200,
-    retrieval_augmented=True
-)
+bank.activate("legal")
+out = bank(x)   # same LoRA weights, different cache
 ```
 
-### Multi-Domain Adaptation
+## Building Caches
 
 ```python
-from retro_peft import MultiDomainRetroAdapter
+from retro_peft import CacheBuilder
 
-# Initialize multi-domain system
-multi_adapter = MultiDomainRetroAdapter(base_model)
+# From pre-computed tensors
+cache = CacheBuilder.from_tensors(keys, values)
 
-# Add domain-specific adapters
-domains = {
-    "medical": {"data": medical_data, "index": "medical.faiss"},
-    "legal": {"data": legal_data, "index": "legal.faiss"},
-    "finance": {"data": finance_data, "index": "finance.faiss"}
-}
+# From a list of (key, value) tensor pairs
+cache = CacheBuilder.from_pairs([(k1, v1), (k2, v2), ...])
 
-for domain_name, domain_config in domains.items():
-    multi_adapter.add_domain(
-        name=domain_name,
-        training_data=domain_config["data"],
-        vector_index=domain_config["index"],
-        adapter_config={"r": 8, "alpha": 16}
-    )
-
-# Automatic domain detection and routing
-response = multi_adapter.generate(
-    "What are the tax implications of stock options?",
-    auto_select_domain=True
-)
-
-# Manual domain selection
-response = multi_adapter.generate(
-    "Analyze this contract",
-    domain="legal",
-    include_citations=True
-)
+# With an encoder and incremental batches
+builder = CacheBuilder(key_encoder=my_encoder, pool="mean")
+for batch_inputs, batch_outputs in corpus:
+    builder.add(batch_inputs, batch_outputs)
+cache = builder.build()
 ```
 
-## Architecture
+## Demo
 
-```
-retro-peft-adapters/
-├── retro_peft/
-│   ├── adapters/
-│   │   ├── lora/           # LoRA implementation
-│   │   ├── adalora/        # AdaLoRA with adaptive rank
-│   │   ├── ia3/            # IA³ adapters
-│   │   └── prefix/         # Prefix tuning
-│   ├── retrieval/
-│   │   ├── indexers/       # Vector index builders
-│   │   ├── retrievers/     # Retrieval strategies
-│   │   └── rerankers/      # Result reranking
-│   ├── fusion/
-│   │   ├── attention/      # Attention-based fusion
-│   │   ├── gating/         # Gated fusion mechanisms
-│   │   └── hierarchical/   # Multi-level fusion
-│   ├── caching/
-│   │   ├── kv_cache/       # Key-value caching
-│   │   ├── adapter_cache/  # Adapter state caching
-│   │   └── retrieval_cache/# Retrieved content cache
-│   └── serving/
-│       ├── inference/      # Optimized inference
-│       ├── router/         # Request routing
-│       └── apis/           # REST/gRPC APIs
-├── benchmarks/             # Performance benchmarks
-├── examples/              # Usage examples
-└── configs/               # Configuration templates
+```bash
+python examples/demo.py
 ```
 
-## Adapter Types
+Trains a small classifier with full fine-tuning, vanilla LoRA, and RetroLoRA on a 4-domain toy task. Shows that RetroLoRA matches full fine-tuning accuracy using ~22% of the parameters.
 
-### RetroLoRA
+## Tests
 
-```python
-from retro_peft.adapters import RetroLoRA
-
-# Standard RetroLoRA
-adapter = RetroLoRA(
-    base_model=model,
-    r=16,
-    alpha=32,
-    dropout=0.1,
-    target_modules=["q_proj", "v_proj", "k_proj", "o_proj"],
-    retrieval_layers=[10, 11, 12],  # Which layers to augment
-    fusion_method="cross_attention"
-)
-
-# Train with retrieval supervision
-adapter.train_with_retrieval(
-    dataset=training_data,
-    retrieval_loss_weight=0.2,
-    negative_sampling=True,
-    hard_negatives_ratio=0.5
-)
+```bash
+pytest tests/ -v
 ```
 
-### RetroAdaLoRA
+53 tests covering `KeyValueCache`, `CacheBuilder`, `RetroAdapter`, `AdapterBank`, and `RetroPEFT`.
 
-```python
-from retro_peft.adapters import RetroAdaLoRA
+## Design Decisions
 
-# Adaptive rank allocation with retrieval
-adalora = RetroAdaLoRA(
-    base_model=model,
-    initial_r=64,
-    target_r=8,
-    beta1=0.85,
-    beta2=0.85,
-    retrieval_importance_weight=True  # Adjust rank based on retrieval
-)
+**Why freeze the cache?**  
+LoRA handles the parametric adaptation that generalizes across examples. The cache carries frozen domain knowledge — it's cheap to swap and requires no gradient updates.
 
-# Importance-aware training
-adalora.train(
-    dataset=data,
-    importance_metric="retrieval_alignment",
-    rank_update_period=100
-)
-```
+**Why cosine similarity?**  
+Keys are normalized at construction time. Retrieval is a matrix multiply — fast and scale-invariant.
 
-### RetroIA3
+**Why a learned gate?**  
+The gate lets the model learn how much to trust retrieval vs LoRA per adapter. It starts near zero and grows only if retrieval is useful for the task.
 
-```python
-from retro_peft.adapters import RetroIA3
-
-# Lightweight IA³ with retrieval
-ia3 = RetroIA3(
-    base_model=model,
-    target_modules=["k_proj", "v_proj", "down_proj"],
-    retrieval_scale_factor=2.0,
-    init_ia3_weights="xavier"
-)
-
-# Efficient few-shot learning
-ia3.few_shot_train(
-    support_set=few_shot_examples,
-    retrieval_augmentation=True,
-    meta_learning_rate=0.001
-)
-```
-
-## Retrieval Systems
-
-### Vector Database Integration
-
-```python
-from retro_peft.retrieval import VectorIndexBuilder
-
-# Build domain-specific index
-builder = VectorIndexBuilder(
-    encoder="sentence-transformers/all-mpnet-base-v2",
-    chunk_size=512,
-    overlap=50
-)
-
-# Process documents
-index = builder.build_index(
-    documents=domain_documents,
-    metadata_extractor=extract_metadata,
-    embedding_cache="embeddings.h5"
-)
-
-# Multiple backend support
-backends = {
-    "faiss": builder.export_faiss("domain.faiss"),
-    "qdrant": builder.export_qdrant("http://localhost:6333"),
-    "weaviate": builder.export_weaviate("http://localhost:8080")
-}
-```
-
-### Hybrid Retrieval
-
-```python
-from retro_peft.retrieval import HybridRetriever
-
-# Combine dense and sparse retrieval
-retriever = HybridRetriever(
-    dense_index=faiss_index,
-    sparse_index=bm25_index,
-    reranker="cross-encoder/ms-marco-MiniLM-L-12-v2",
-    fusion_method="reciprocal_rank"
-)
-
-# Retrieve with multiple strategies
-results = retriever.retrieve(
-    query="machine learning for protein folding",
-    dense_k=20,
-    sparse_k=20,
-    rerank_k=5,
-    diversity_penalty=0.3
-)
-```
-
-### Contextual Retrieval
-
-```python
-from retro_peft.retrieval import ContextualRetriever
-
-# Retrieval aware of conversation context
-contextual = ContextualRetriever(
-    base_retriever=retriever,
-    context_window=5,
-    context_weight=0.4
-)
-
-# Multi-turn retrieval
-conversation = [
-    "What is CRISPR?",
-    "How does it work?",
-    "What are the ethical concerns?"
-]
-
-for turn in conversation:
-    retrieved = contextual.retrieve_with_context(
-        query=turn,
-        conversation_history=conversation[:i],
-        personalization_vector=user_profile
-    )
-```
-
-## Caching Strategies
-
-### Frozen K/V Cache
-
-```python
-from retro_peft.caching import FrozenKVCache
-
-# Pre-compute and freeze attention states
-kv_cache = FrozenKVCache(
-    model=base_model,
-    layers_to_cache=[20, 21, 22, 23],
-    cache_size_gb=10
-)
-
-# Populate cache with domain data
-kv_cache.populate(
-    domain_texts=domain_corpus,
-    batch_size=32,
-    compression="int8"  # Quantization for efficiency
-)
-
-# Use cached states during inference
-with kv_cache.activated():
-    output = model.generate(
-        prompt,
-        use_cache=True,
-        past_key_values=kv_cache
-    )
-```
-
-### Hierarchical Caching
-
-```python
-from retro_peft.caching import HierarchicalCache
-
-# Multi-level caching system
-cache = HierarchicalCache(
-    levels={
-        "l1": {"size": "1GB", "backend": "redis", "ttl": 3600},
-        "l2": {"size": "10GB", "backend": "rocksdb", "ttl": 86400},
-        "l3": {"size": "100GB", "backend": "s3", "ttl": None}
-    }
-)
-
-# Automatic cache management
-@cache.cached(level="l1")
-def compute_retrieval_embeddings(text):
-    return encoder.encode(text)
-```
-
-## Advanced Training
-
-### Contrastive Retrieval Training
-
-```python
-from retro_peft.training import ContrastiveRetrievalTrainer
-
-trainer = ContrastiveRetrievalTrainer(
-    model=retro_adapter,
-    temperature=0.07,
-    in_batch_negatives=True
-)
-
-# Train with hard negative mining
-trainer.train(
-    dataset=paired_data,
-    hard_negative_mining=True,
-    dynamic_hard_negatives=True,
-    curriculum_learning=True
-)
-```
-
-### Multi-Task Learning
-
-```python
-from retro_peft.training import MultiTaskRetroTrainer
-
-# Joint training on multiple objectives
-multi_task = MultiTaskRetroTrainer(
-    model=retro_adapter,
-    tasks={
-        "generation": {"weight": 0.6, "loss": "cross_entropy"},
-        "retrieval": {"weight": 0.3, "loss": "contrastive"},
-        "domain_classification": {"weight": 0.1, "loss": "cross_entropy"}
-    }
-)
-
-multi_task.train(
-    datasets={task: data for task, data in task_datasets.items()},
-    gradient_accumulation_steps=4,
-    task_sampling="proportional"
-)
-```
-
-## Production Deployment
-
-### Optimized Serving
-
-```python
-from retro_peft.serving import RetroAdapterServer
-
-# Initialize production server
-server = RetroAdapterServer(
-    base_model_path="meta-llama/Llama-2-7b-hf",
-    adapter_registry={
-        "medical": "adapters/medical_retro_lora",
-        "legal": "adapters/legal_retro_lora",
-        "finance": "adapters/finance_retro_lora"
-    },
-    retrieval_backends={
-        "medical": "qdrant://medical-index",
-        "legal": "weaviate://legal-index",
-        "finance": "faiss://finance.index"
-    },
-    cache_config={
-        "adapter_cache_size": "5GB",
-        "retrieval_cache_size": "10GB",
-        "kv_cache_size": "20GB"
-    }
-)
-
-# Launch with auto-scaling
-server.launch(
-    host="0.0.0.0",
-    port=8000,
-    workers=4,
-    gpu_memory_fraction=0.9,
-    dynamic_batching=True,
-    max_batch_size=32
-)
-```
-
-### Request Routing
-
-```python
-from retro_peft.serving import AdapterRouter
-
-# Intelligent request routing
-router = AdapterRouter(
-    routing_model="domain-classifier-v2",
-    fallback_adapter="general",
-    confidence_threshold=0.8
-)
-
-@app.post("/generate")
-async def generate(request: GenerationRequest):
-    # Route to appropriate adapter
-    adapter_name = router.route(request.prompt)
-    
-    # Load adapter if not cached
-    adapter = adapter_pool.get_or_load(adapter_name)
-    
-    # Generate with retrieval
-    response = await adapter.generate_async(
-        prompt=request.prompt,
-        max_length=request.max_length,
-        retrieval_k=request.retrieval_k,
-        stream=request.stream
-    )
-    
-    return response
-```
-
-## Performance Optimization
-
-### Quantization Support
-
-```python
-from retro_peft.optimization import QuantizedRetroAdapter
-
-# 4-bit quantization with retrieval
-quantized = QuantizedRetroAdapter(
-    base_model=model,
-    adapter_config=lora_config,
-    quantization_config={
-        "load_in_4bit": True,
-        "bnb_4bit_compute_dtype": torch.float16,
-        "bnb_4bit_quant_type": "nf4",
-        "retrieval_embeddings_dtype": torch.float16
-    }
-)
-
-# Maintains quality with 75% memory reduction
-```
-
-### Distributed Training
-
-```python
-from retro_peft.distributed import DistributedRetroTrainer
-
-# Multi-GPU training with retrieval
-distributed_trainer = DistributedRetroTrainer(
-    model=retro_adapter,
-    world_size=8,
-    retrieval_distributed=True,
-    gradient_checkpointing=True
-)
-
-# Efficient data parallel training
-distributed_trainer.train(
-    dataset=large_dataset,
-    per_device_batch_size=4,
-    gradient_accumulation_steps=8,
-    retrieval_cache_sharing=True
-)
-```
-
-## Benchmarks
-
-### Performance Comparison
-
-| Method | Parameters | Memory | Latency | MMLU Score | Domain Transfer |
-|--------|-----------|--------|---------|------------|----------------|
-| Full Fine-tuning | 7B | 28GB | 45ms | 65.2 | - |
-| LoRA | 4.2M | 14.2GB | 46ms | 63.8 | 3 epochs |
-| RetroLoRA | 4.2M + 2GB index | 16.2GB | 52ms | 67.1 | Zero-shot |
-| RetroAdaLoRA | 2.1M + 2GB index | 15.1GB | 50ms | 66.8 | Zero-shot |
-| RetroIA3 | 0.8M + 2GB index | 14.8GB | 48ms | 65.9 | Zero-shot |
-
-## Contributing
-
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## Citation
-
-```bibtex
-@software{retro_peft_adapters,
-  title={Retro-PEFT-Adapters: Retrieval-Augmented Parameter-Efficient Fine-Tuning},
-  author={Daniel Schmidt},
-  year={2025},
-  url={https://github.com/danieleschmidt/retro-peft-adapters}
-}
-
-@article{meta_peft_rag_2025,
-  title={Retrieval-Augmented Parameter-Efficient Fine-Tuning at Scale},
-  author={Meta AI Research},
-  journal={arXiv preprint},
-  year={2025}
-}
-```
+**Why shared LoRA in AdapterBank?**  
+One set of LoRA weights captures general adaptation patterns; domain specificity lives in the cache. This minimizes parameters when serving many domains.
 
 ## License
 
-Apache 2.0 - see [LICENSE](LICENSE) for details.
-
-## Acknowledgments
-
-- Meta AI for PEFT+RAG research
-- HuggingFace for PEFT library
-- Vector database communities
+MIT
